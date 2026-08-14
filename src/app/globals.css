@@ -1,73 +1,68 @@
 @import "tailwindcss";
 
 /*
-  Design system — "studio instrument cluster"
-  Dark, calibrated audio-gear aesthetic. Everything is themed through the
-  semantic tokens below. Do not use raw colors in components — reference these.
+  Design system — light, data-dense, crisp.
+  Neutral chrome, hairline borders, one restrained accent. Color is reserved
+  for data meaning (EQ boost/cut, crossover type, subwoofer). Everything themes
+  through the semantic tokens below — no raw colors in components.
 */
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 
-  /* Core surfaces */
-  --background: 222 30% 6%;
-  --surface: 222 26% 9%;
-  --surface-2: 222 24% 12%;
-  --card: 222 26% 10%;
-  --card-foreground: 210 20% 96%;
-  --popover: 222 28% 8%;
-  --popover-foreground: 210 20% 96%;
+  /* Surfaces — near-white, subtle greys */
+  --background: 210 20% 99%;
+  --surface: 210 20% 97%;
+  --surface-2: 214 18% 94%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 24% 12%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 24% 12%;
 
   /* Text */
-  --foreground: 210 20% 96%;
-  --muted: 222 18% 16%;
-  --muted-foreground: 216 12% 62%;
-  --faint: 216 10% 44%;
+  --foreground: 222 24% 12%;
+  --muted: 214 18% 95%;
+  --muted-foreground: 220 9% 42%;
+  --faint: 220 9% 58%;
 
-  /* Lines / structure */
-  --border: 220 18% 18%;
-  --border-strong: 220 16% 26%;
-  --input: 220 18% 18%;
-  --ring: 174 72% 46%;
+  /* Structure */
+  --border: 220 14% 90%;
+  --border-strong: 220 13% 82%;
+  --input: 220 14% 88%;
+  --ring: 221 83% 53%;
 
-  /* Brand accent — electric teal-cyan (the "signal") */
-  --primary: 174 72% 46%;
-  --primary-foreground: 200 60% 6%;
-  --primary-muted: 174 40% 20%;
+  /* Accent — restrained blue, for interactive/active only */
+  --primary: 221 83% 53%;
+  --primary-foreground: 0 0% 100%;
+  --primary-muted: 221 90% 96%;
 
-  /* Secondary accent — warm amber (energy / boosts) */
-  --accent: 32 96% 56%;
-  --accent-foreground: 30 60% 8%;
+  --accent: 221 83% 53%;
+  --accent-foreground: 0 0% 100%;
 
   /* Data semantics */
-  --boost: 32 96% 56%;      /* EQ gain > 0 */
-  --cut: 199 89% 60%;       /* EQ gain < 0 */
-  --highpass: 262 83% 68%;  /* crossover HP */
-  --lowpass: 174 72% 52%;   /* crossover LP */
-  --sub: 340 82% 62%;       /* subwoofer */
-  --invert: 32 96% 56%;     /* polarity inverted flag */
+  --boost: 0 72% 51%;       /* EQ gain > 0 (red) */
+  --cut: 205 90% 42%;       /* EQ gain < 0 (blue) */
+  --highpass: 262 72% 54%;  /* crossover HP (violet) */
+  --lowpass: 173 72% 34%;   /* crossover LP (teal) */
+  --sub: 330 72% 48%;       /* subwoofer (magenta) */
+  --invert: 25 90% 45%;     /* polarity inverted (orange) */
 
   /* Status */
-  --success: 152 62% 48%;
-  --warning: 38 92% 55%;
-  --destructive: 0 72% 56%;
-  --destructive-foreground: 0 0% 98%;
+  --success: 152 55% 38%;
+  --warning: 33 90% 44%;
+  --destructive: 0 72% 48%;
+  --destructive-foreground: 0 0% 100%;
 
-  /* Chart series */
-  --chart-1: 174 72% 50%;
-  --chart-2: 262 83% 68%;
-  --chart-3: 32 96% 56%;
-  --chart-4: 199 89% 60%;
-  --chart-5: 340 82% 62%;
+  /* Band series (used in charts) */
+  --chart-1: 173 72% 34%;
+  --chart-2: 262 72% 54%;
+  --chart-3: 0 72% 51%;
+  --chart-4: 205 90% 42%;
+  --chart-5: 330 72% 48%;
 
-  --radius: 0.85rem;
-
-  /* Gradients & glow */
-  --gradient-brand: linear-gradient(135deg, hsl(174 72% 46%), hsl(199 89% 58%));
-  --gradient-signal: linear-gradient(180deg, hsl(174 72% 50% / 0.35), hsl(174 72% 50% / 0));
-  --gradient-panel: radial-gradient(120% 120% at 50% 0%, hsl(222 30% 11%), hsl(222 32% 5%));
-  --glow-primary: 0 0 0 1px hsl(174 72% 46% / 0.25), 0 8px 40px -8px hsl(174 72% 46% / 0.45);
-  --shadow-panel: 0 1px 0 0 hsl(0 0% 100% / 0.03) inset, 0 24px 60px -24px hsl(0 0% 0% / 0.7);
+  --radius: 0.5rem;
+  --shadow-sm: 0 1px 2px 0 hsl(220 20% 20% / 0.05);
+  --shadow-card: 0 1px 2px 0 hsl(220 20% 20% / 0.04), 0 1px 3px 0 hsl(220 20% 20% / 0.04);
 }
 
 @theme inline {
@@ -116,81 +111,40 @@
   --color-chart-5: hsl(var(--chart-5));
 
   --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 0.25rem);
-  --radius-sm: calc(var(--radius) - 0.4rem);
-  --radius-xl: calc(var(--radius) + 0.35rem);
+  --radius-md: calc(var(--radius) - 0.125rem);
+  --radius-sm: calc(var(--radius) - 0.25rem);
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-
-  --animate-fade-in: fade-in 0.5s ease both;
-  --animate-rise: rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-sweep: sweep 1.4s ease both;
-}
-
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-@keyframes rise {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes sweep {
-  from { stroke-dashoffset: var(--sweep-len, 2000); opacity: 0.3; }
-  to { stroke-dashoffset: 0; opacity: 1; }
 }
 
 * {
   border-color: hsl(var(--border));
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
 body {
   background: hsl(var(--background));
-  background-image: var(--gradient-panel);
-  background-attachment: fixed;
   color: hsl(var(--foreground));
   font-family: var(--font-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
-/* Numeric readouts use the mono face + tabular figures */
-.font-readout {
+/* Numeric readouts: mono + tabular figures for scannable data */
+.font-readout,
+.tnum {
   font-family: var(--font-mono), ui-monospace, monospace;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
 }
 
-/* Panel surface treatment */
-.panel {
+.card {
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
-  box-shadow: var(--shadow-panel);
+  box-shadow: var(--shadow-card);
 }
 
-.panel-inset {
-  background: linear-gradient(180deg, hsl(var(--surface-2)), hsl(var(--surface)));
-  border: 1px solid hsl(var(--border));
-}
-
-.text-gradient-brand {
-  background: var(--gradient-brand);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.ring-focus {
-  outline: none;
-  box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--ring) / 0.7);
-}
-
-/* Thin, themed scrollbars */
+/* Thin neutral scrollbars */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
@@ -199,8 +153,7 @@ body {
   border: 3px solid transparent;
   background-clip: content-box;
 }
-::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.5); background-clip: content-box; }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.001ms !important; scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.001ms !important; }
 }

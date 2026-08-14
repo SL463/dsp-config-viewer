@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRef, useState } from "react";
-import { Upload, Check, ArrowRight } from "./icons";
+import { Upload, Check } from "./icons";
 
 type Status =
   | { state: "idle" }
@@ -46,22 +46,19 @@ export default function UploadForm() {
 
   if (status.state === "done") {
     return (
-      <div className="panel rounded-2xl p-8 text-center">
-        <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[color-mix(in_srgb,hsl(var(--success))_18%,transparent)] text-success">
-          <Check className="h-7 w-7" />
+      <div className="rounded-lg border border-border bg-card p-8 text-center">
+        <span className="mx-auto grid h-11 w-11 place-items-center rounded-full bg-[color-mix(in_srgb,hsl(var(--success))_12%,transparent)] text-success">
+          <Check className="h-6 w-6" />
         </span>
-        <h2 className="mt-4 text-xl font-semibold">Tune published</h2>
+        <h2 className="mt-3 text-lg font-semibold">Tune published</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           “{status.title}” was decoded and stored as schema-conformant JSON.
         </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-3">
-          <Link href={`/tunes/${status.id}`} className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:opacity-90">
-            View tune <ArrowRight className="h-4 w-4" />
+        <div className="mt-5 flex flex-wrap justify-center gap-2.5">
+          <Link href={`/tunes/${status.id}`} className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:opacity-90">
+            View tune
           </Link>
-          <button
-            onClick={() => setStatus({ state: "idle" })}
-            className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-5 py-2.5 text-sm font-semibold transition hover:border-border-strong"
-          >
+          <button onClick={() => setStatus({ state: "idle" })} className="rounded-md border border-border bg-card px-4 py-2 text-sm font-medium transition hover:border-border-strong">
             Upload another
           </button>
         </div>
@@ -70,8 +67,7 @@ export default function UploadForm() {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-5">
-      {/* Dropzone */}
+    <form onSubmit={submit} className="space-y-4">
       <div
         onDragOver={(e) => {
           e.preventDefault();
@@ -84,17 +80,15 @@ export default function UploadForm() {
           pick(e.dataTransfer.files?.[0] ?? null);
         }}
         onClick={() => inputRef.current?.click()}
-        className={`flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-10 text-center transition ${
-          dragging ? "border-primary bg-primary/5" : "border-border bg-surface/50 hover:border-border-strong"
+        className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 text-center transition ${
+          dragging ? "border-primary bg-primary-muted" : "border-border bg-card hover:border-border-strong"
         }`}
       >
-        <span className="grid h-14 w-14 place-items-center rounded-full bg-primary-muted text-primary">
-          <Upload className="h-7 w-7" />
+        <span className="grid h-11 w-11 place-items-center rounded-full bg-muted text-muted-foreground">
+          <Upload className="h-6 w-6" />
         </span>
-        <p className="mt-4 font-medium">
-          {file ? file.name : "Drop a .pct6 or pct6-tune JSON here"}
-        </p>
-        <p className="mt-1 text-sm text-faint">
+        <p className="mt-3 text-sm font-medium">{file ? file.name : "Drop a .pct6 or pct6-tune JSON here"}</p>
+        <p className="mt-0.5 text-xs text-faint">
           {file ? `${(file.size / 1024).toFixed(1)} KB · click to change` : "or click to browse"}
         </p>
         <input
@@ -107,15 +101,14 @@ export default function UploadForm() {
         />
       </div>
 
-      {/* Metadata */}
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2">
         <Field name="title" label="Title" placeholder="e.g. Stage 2 — front stage" />
         <Field name="vehicle" label="Vehicle / system" placeholder="e.g. 2021 Golf R · HELIX DSP.3" />
       </div>
       <Field name="notes" label="Notes" placeholder="Optional description shown on the tune page" textarea />
 
       {status.state === "error" && (
-        <p className="whitespace-pre-wrap rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <p className="whitespace-pre-wrap rounded-md border border-destructive/40 bg-[color-mix(in_srgb,hsl(var(--destructive))_8%,transparent)] px-3 py-2.5 text-sm text-destructive">
           {status.message}
         </p>
       )}
@@ -123,7 +116,7 @@ export default function UploadForm() {
       <button
         type="submit"
         disabled={status.state === "uploading"}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition hover:opacity-90 disabled:opacity-60 sm:w-auto"
+        className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:opacity-90 disabled:opacity-60"
       >
         {status.state === "uploading" ? "Decoding…" : "Decode & publish"}
       </button>
@@ -143,10 +136,10 @@ function Field({
   textarea?: boolean;
 }) {
   const cls =
-    "w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm outline-none transition placeholder:text-faint focus:border-primary/50 focus:ring-focus";
+    "w-full rounded-md border border-input bg-card px-3 py-2 text-sm outline-none transition placeholder:text-faint focus:border-primary focus:ring-2 focus:ring-ring/30";
   return (
-    <label className="block space-y-1.5">
-      <span className="text-xs font-medium uppercase tracking-wider text-faint">{label}</span>
+    <label className="block space-y-1">
+      <span className="text-xs font-medium text-muted-foreground">{label}</span>
       {textarea ? (
         <textarea name={name} placeholder={placeholder} rows={2} className={cls} />
       ) : (
