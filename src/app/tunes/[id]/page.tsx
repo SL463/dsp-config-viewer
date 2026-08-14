@@ -104,7 +104,7 @@ export default async function TuneDetailPage({
       )}
 
       {/* Output channels */}
-      <ChannelTable title="Output channels" configured={outConfigured} untuned={outUntuned} freqs={freqs} extent={extent} />
+      <ChannelTable title="Output channels" configured={outConfigured} untuned={outUntuned} freqs={freqs} extent={extent} defaultExpandFirst />
 
       {/* Input channels */}
       {(inConfigured.length > 0 || inUntuned.length > 0) && (
