@@ -1,29 +1,8 @@
 import { clsx } from "clsx";
 import type { ReactNode } from "react";
 
-/** A labelled numeric readout (mono, tabular). */
-export function Readout({
-  label,
-  value,
-  unit,
-  accent,
-  className,
-}: {
-  label: string;
-  value: ReactNode;
-  unit?: string;
-  accent?: string;
-  className?: string;
-}) {
-  return (
-    <div className={clsx("flex flex-col gap-0.5", className)}>
-      <span className="text-[10px] font-medium uppercase tracking-wider text-faint">{label}</span>
-      <span className="font-readout text-lg leading-none" style={accent ? { color: accent } : undefined}>
-        {value}
-        {unit && <span className="ml-0.5 text-xs text-muted-foreground">{unit}</span>}
-      </span>
-    </div>
-  );
+export function Card({ children, className }: { children: ReactNode; className?: string }) {
+  return <div className={clsx("card rounded-lg", className)}>{children}</div>;
 }
 
 export function Chip({
@@ -38,13 +17,17 @@ export function Chip({
   return (
     <span
       className={clsx(
-        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium",
+        "inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-xs font-medium",
         className,
       )}
       style={
         color
-          ? { borderColor: `color-mix(in srgb, ${color} 40%, transparent)`, color, background: `color-mix(in srgb, ${color} 12%, transparent)` }
-          : undefined
+          ? {
+              borderColor: `color-mix(in srgb, ${color} 30%, transparent)`,
+              color,
+              background: `color-mix(in srgb, ${color} 8%, transparent)`,
+            }
+          : { borderColor: "hsl(var(--border))", color: "hsl(var(--muted-foreground))" }
       }
     >
       {children}
@@ -58,20 +41,19 @@ export function Badge({
   className,
 }: {
   children: ReactNode;
-  tone?: "muted" | "primary" | "accent" | "invert" | "success";
+  tone?: "muted" | "primary" | "invert" | "success";
   className?: string;
 }) {
   const tones: Record<string, string> = {
     muted: "bg-muted text-muted-foreground border-border",
-    primary: "bg-primary-muted text-primary border-transparent",
-    accent: "bg-[color-mix(in_srgb,hsl(var(--accent))_16%,transparent)] text-accent border-transparent",
-    invert: "bg-[color-mix(in_srgb,hsl(var(--invert))_16%,transparent)] text-invert border-transparent",
-    success: "bg-[color-mix(in_srgb,hsl(var(--success))_16%,transparent)] text-success border-transparent",
+    primary: "bg-primary-muted text-primary border-[color-mix(in_srgb,hsl(var(--primary))_25%,transparent)]",
+    invert: "bg-[color-mix(in_srgb,hsl(var(--invert))_10%,transparent)] text-invert border-[color-mix(in_srgb,hsl(var(--invert))_25%,transparent)]",
+    success: "bg-[color-mix(in_srgb,hsl(var(--success))_10%,transparent)] text-success border-[color-mix(in_srgb,hsl(var(--success))_25%,transparent)]",
   };
   return (
     <span
       className={clsx(
-        "inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide",
+        "inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
         tones[tone],
         className,
       )}
@@ -81,46 +63,29 @@ export function Badge({
   );
 }
 
-export function Panel({
-  children,
-  className,
-  inset,
-}: {
-  children: ReactNode;
-  className?: string;
-  inset?: boolean;
-}) {
-  return (
-    <div className={clsx(inset ? "panel-inset" : "panel", "rounded-xl", className)}>{children}</div>
-  );
-}
-
+/** Section title — plain and crisp. */
 export function SectionHeading({
-  eyebrow,
   title,
   description,
   action,
 }: {
-  eyebrow?: string;
   title: ReactNode;
   description?: ReactNode;
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-4">
-      <div className="space-y-1.5">
-        {eyebrow && (
-          <div className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{eyebrow}</div>
-        )}
-        <h2 className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl">{title}</h2>
-        {description && <p className="max-w-2xl text-sm text-muted-foreground">{description}</p>}
+    <div className="flex flex-wrap items-end justify-between gap-3">
+      <div className="space-y-1">
+        <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
+        {description && <p className="text-sm text-muted-foreground">{description}</p>}
       </div>
       {action}
     </div>
   );
 }
 
-export function StatTile({
+/** A compact labelled statistic. */
+export function Stat({
   value,
   label,
   sub,
@@ -132,12 +97,24 @@ export function StatTile({
   accent?: string;
 }) {
   return (
-    <Panel inset className="p-4">
-      <div className="font-readout text-3xl leading-none" style={accent ? { color: accent } : undefined}>
+    <div className="rounded-lg border border-border bg-card px-3.5 py-3">
+      <div className="font-readout text-2xl leading-none" style={accent ? { color: accent } : undefined}>
         {value}
       </div>
-      <div className="mt-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</div>
-      {sub && <div className="mt-0.5 text-xs text-faint">{sub}</div>}
-    </Panel>
+      <div className="mt-1.5 text-xs font-medium text-muted-foreground">{label}</div>
+      {sub && <div className="text-[11px] text-faint">{sub}</div>}
+    </div>
+  );
+}
+
+/** Key/value row for spec grids. */
+export function KV({ label, value, mono }: { label: string; value: ReactNode; mono?: boolean }) {
+  return (
+    <div className="flex items-baseline justify-between gap-4 border-b border-border/70 py-1.5 last:border-0">
+      <span className="shrink-0 text-xs text-muted-foreground">{label}</span>
+      <span className={clsx("truncate text-right text-sm", mono && "font-readout")} title={typeof value === "string" ? value : undefined}>
+        {value}
+      </span>
+    </div>
   );
 }

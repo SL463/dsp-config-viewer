@@ -4,11 +4,10 @@ import { notFound } from "next/navigation";
 import { getTune } from "@/lib/storage";
 import { logFreqs, responseExtent } from "@/lib/dsp";
 import { channelView, type ChannelView } from "@/lib/view";
-import { isAssignedButUntuned, isConfigured, parseSavedDate, summarize } from "@/lib/tune";
+import { isAssignedButUntuned, isConfigured, summarize } from "@/lib/tune";
 import ResponseChart, { type ResponseSeries } from "@/components/ResponseChart";
-import TuneChannels from "@/components/TuneChannels";
-import { Badge, Panel, SectionHeading, StatTile } from "@/components/ui";
-import { ArrowRight } from "@/components/icons";
+import ChannelTable from "@/components/ChannelTable";
+import { Badge, Card, KV, Stat } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -51,115 +50,95 @@ export default async function TuneDetailPage({
   const inUntuned = tune.inputs.filter(isAssignedButUntuned).map((c) => channelView(c, freqs));
 
   const overview = overviewSeries(outConfigured);
-  const extent = responseExtent(
-    outConfigured.filter((v) => v.hasResponse).map((v) => v.curve),
-  );
-
-  const savedDate = parseSavedDate(tune.meta.D);
+  const extent = responseExtent(outConfigured.filter((v) => v.hasResponse).map((v) => v.curve));
   const rawIsHttp = record.rawUrl?.startsWith("http");
 
   return (
-    <div className="mx-auto max-w-6xl space-y-10 px-4 py-10 sm:px-6">
-      {/* Back */}
-      <Link
-        href="/tunes"
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground"
-      >
-        <ArrowRight className="h-4 w-4 rotate-180" /> Library
+    <div className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6">
+      <Link href="/tunes" className="text-sm text-muted-foreground transition hover:text-foreground">
+        ← Library
       </Link>
 
       {/* Header */}
-      <header className="space-y-4">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="space-y-2">
-            <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
-              {record.title}
-            </h1>
-            {record.vehicle && <p className="text-lg text-muted-foreground">{record.vehicle}</p>}
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Badge tone={record.format === "pct6" ? "primary" : "muted"}>{record.format}</Badge>
-            {tune.meta.Dev && <Badge>Device {tune.meta.Dev}</Badge>}
-            {tune.meta.V && <Badge>PC-Tool {tune.meta.V}</Badge>}
-            {savedDate && <Badge>Saved {summary.savedAt}</Badge>}
-          </div>
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold tracking-tight">{record.title}</h1>
+          {record.vehicle && <p className="text-muted-foreground">{record.vehicle}</p>}
+          {record.notes && <p className="max-w-2xl text-sm text-muted-foreground">{record.notes}</p>}
         </div>
-        {record.notes && <p className="max-w-2xl text-sm text-muted-foreground">{record.notes}</p>}
+        <div className="flex flex-wrap gap-1.5">
+          <Badge tone={record.format === "pct6" ? "primary" : "muted"}>{record.format}</Badge>
+          {tune.meta.Dev && <Badge>Device {tune.meta.Dev}</Badge>}
+          {tune.meta.V && <Badge>PC-Tool {tune.meta.V}</Badge>}
+          {summary.savedAt && <Badge>{summary.savedAt}</Badge>}
+        </div>
       </header>
 
       {/* Stats */}
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatTile value={summary.configuredOutputs} label="Active outputs" sub={`of ${summary.totalOutputs}`} accent="hsl(var(--primary))" />
-        <StatTile value={summary.totalEqBands} label="EQ bands" />
-        <StatTile value={summary.configuredInputs} label="Active inputs" sub={`of ${summary.totalInputs}`} />
-        <StatTile value={summary.hasSub ? "Yes" : "—"} label="Subwoofer" accent={summary.hasSub ? "hsl(var(--sub))" : undefined} />
+      <section className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+        <Stat value={summary.configuredOutputs} label="Active outputs" sub={`of ${summary.totalOutputs}`} accent="hsl(var(--primary))" />
+        <Stat value={summary.totalEqBands} label="EQ bands" />
+        <Stat value={summary.configuredInputs} label="Active inputs" sub={`of ${summary.totalInputs}`} />
+        <Stat value={summary.hasSub ? "Yes" : "—"} label="Subwoofer" accent={summary.hasSub ? "hsl(var(--sub))" : undefined} />
       </section>
 
-      {/* System response overview */}
+      {/* System response */}
       {overview.length > 0 && (
-        <section className="space-y-4">
-          <SectionHeading eyebrow="Overview" title="System response" description="Modeled EQ + crossover response for every active output, overlaid. Hover to inspect." />
-          <Panel className="p-4 sm:p-6">
-            <div className="mb-4 flex flex-wrap gap-x-4 gap-y-2">
+        <section className="space-y-2">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-base font-semibold">System response</h2>
+            <div className="flex flex-wrap gap-x-3 gap-y-1">
               {overview.map((s) => (
-                <span key={s.id} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <span className="h-2 w-2 rounded-full" style={{ background: s.color }} />
+                <span key={s.id} className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <span className="h-1.5 w-1.5 rounded-full" style={{ background: s.color }} />
                   {s.label}
                 </span>
               ))}
             </div>
-            <ResponseChart freqs={freqs} series={overview} min={extent.min} max={extent.max} height={320} />
-          </Panel>
+          </div>
+          <Card className="p-3 sm:p-4">
+            <ResponseChart freqs={freqs} series={overview} min={extent.min} max={extent.max} height={300} />
+          </Card>
+          <p className="text-xs text-faint">Modeled EQ + crossover response for every active output, overlaid. Hover to inspect.</p>
         </section>
       )}
 
       {/* Output channels */}
-      <TuneChannels title="Output channels" configured={outConfigured} untuned={outUntuned} freqs={freqs} extent={extent} />
+      <ChannelTable title="Output channels" configured={outConfigured} untuned={outUntuned} freqs={freqs} extent={extent} />
 
       {/* Input channels */}
       {(inConfigured.length > 0 || inUntuned.length > 0) && (
-        <TuneChannels title="Input channels" configured={inConfigured} untuned={inUntuned} freqs={freqs} extent={extent} />
+        <ChannelTable title="Input channels" configured={inConfigured} untuned={inUntuned} freqs={freqs} extent={extent} />
       )}
 
-      {/* Source details */}
-      <section className="space-y-4">
-        <SectionHeading eyebrow="Source" title="File details" />
-        <Panel className="grid gap-x-8 gap-y-4 p-6 sm:grid-cols-2">
-          <Detail label="Source file" value={record.sourceFilename} mono />
-          <Detail label="Container" value={tune.container_mode} />
-          <Detail label="Decoder" value={tune.decoder} mono />
-          <Detail label="XML payload" value={`${tune.xml_bytes.toLocaleString()} bytes`} />
-          {tune.meta.FN && <Detail label="Original path" value={tune.meta.FN} mono />}
-          <Detail label="Declared I/O" value={`${tune.meta.INS ?? "?"} in · ${tune.meta.OUTS ?? "?"} out`} />
-          <div className="sm:col-span-2 flex flex-wrap gap-3 pt-2">
+      {/* Source */}
+      <section className="space-y-2">
+        <h2 className="text-base font-semibold">File details</h2>
+        <div className="grid gap-x-8 gap-y-0 rounded-lg border border-border bg-card px-4 py-2 sm:grid-cols-2">
+          <KV label="Source file" value={record.sourceFilename} mono />
+          <KV label="Container" value={tune.container_mode} />
+          <KV label="Decoder" value={tune.decoder} mono />
+          <KV label="XML payload" value={`${tune.xml_bytes.toLocaleString()} bytes`} mono />
+          <KV label="Declared I/O" value={`${tune.meta.INS ?? "?"} in · ${tune.meta.OUTS ?? "?"} out`} mono />
+          {tune.meta.FN && <KV label="Original path" value={tune.meta.FN} mono />}
+        </div>
+        <div className="flex flex-wrap gap-2 pt-1">
+          <a
+            href={`/api/tunes/${record.id}?download=1`}
+            className="rounded-md border border-border bg-card px-3 py-1.5 text-sm font-medium transition hover:border-border-strong"
+          >
+            Download JSON
+          </a>
+          {rawIsHttp && (
             <a
-              href={`/api/tunes/${record.id}?download=1`}
-              className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium transition hover:border-border-strong"
+              href={record.rawUrl}
+              className="rounded-md border border-border bg-card px-3 py-1.5 text-sm font-medium transition hover:border-border-strong"
             >
-              Download JSON
+              Download original .pct6
             </a>
-            {rawIsHttp && (
-              <a
-                href={record.rawUrl}
-                className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium transition hover:border-border-strong"
-              >
-                Download original .pct6
-              </a>
-            )}
-          </div>
-        </Panel>
+          )}
+        </div>
       </section>
-    </div>
-  );
-}
-
-function Detail({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
-  return (
-    <div className="min-w-0 space-y-1">
-      <div className="text-[10px] font-medium uppercase tracking-wider text-faint">{label}</div>
-      <div className={`truncate text-sm ${mono ? "font-readout" : ""}`} title={value}>
-        {value}
-      </div>
     </div>
   );
 }

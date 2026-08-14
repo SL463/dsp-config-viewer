@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { listTunes } from "@/lib/storage";
 import TuneLibrary from "@/components/TuneLibrary";
-import { SectionHeading } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -13,12 +12,13 @@ export const metadata: Metadata = {
 export default async function TunesPage() {
   const tunes = await listTunes();
   return (
-    <div className="mx-auto max-w-6xl space-y-8 px-4 py-12 sm:px-6">
-      <SectionHeading
-        eyebrow="Library"
-        title="Tune library"
-        description={`${tunes.length} published ${tunes.length === 1 ? "tune" : "tunes"}. Tap any card to explore its channels, EQ and crossovers.`}
-      />
+    <div className="mx-auto max-w-6xl space-y-4 px-4 py-8 sm:px-6">
+      <div>
+        <h1 className="text-xl font-semibold tracking-tight">Tune library</h1>
+        <p className="mt-0.5 text-sm text-muted-foreground">
+          {tunes.length} published {tunes.length === 1 ? "tune" : "tunes"}. Select a row to view its channels, EQ and crossovers.
+        </p>
+      </div>
       <TuneLibrary tunes={tunes} />
     </div>
   );

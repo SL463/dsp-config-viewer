@@ -37,6 +37,10 @@ yarn-error.log*
 # local tune storage (dev fallback)
 /.data
 
+# playwright / screenshot artifacts
+/.playwright-mcp
+/*.png
+
 # vercel
 .vercel
 
