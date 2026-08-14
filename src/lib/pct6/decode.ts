@@ -65,10 +65,14 @@ export function decodeContainer(data: Buffer): { xml: Buffer; mode: ContainerMod
       continue;
     }
   }
-  // Last resort: the file may be plain XML ("No compression used").
-  const trimmed = data.subarray(0, 64).toString("latin1").trimStart();
-  if (trimmed.startsWith("<")) return { xml: data, mode: "no compression" };
-  throw new Error("failed to detect .pct6 container format");
+  // Last resort: the file may be plain XML ("No compression used"). Only accept
+  // it if it actually looks like a PC-Tool tune — otherwise an unrelated text
+  // file (e.g. a saved HTML web page) would be parsed into an empty tune.
+  const head = data.subarray(0, 2048).toString("latin1");
+  if (/<ATF[\s>]/.test(head)) return { xml: data, mode: "no compression" };
+  throw new Error(
+    "unrecognized file — no PC-Tool tune data found. Make sure this is a real .pct6 export, not a saved web page or a different file.",
+  );
 }
 
 function db(linear: number): number {
@@ -178,7 +182,12 @@ function parseChannel(el: Record<string, unknown>, role: "output" | "input"): Ch
 export function decodePct6(data: Buffer, sourceFile: string): DecodedTune {
   const { xml, mode } = decodeContainer(data);
   const doc = parser.parse(xml.toString("utf-8"));
-  const root = (doc.ATF ?? {}) as Record<string, unknown>;
+  if (!doc || typeof doc !== "object" || !doc.ATF) {
+    throw new Error(
+      "decoded file has no <ATF> tune data — this doesn't look like a PC-Tool .pct6 export.",
+    );
+  }
+  const root = doc.ATF as Record<string, unknown>;
 
   const meta: TuneMeta = attribs(root);
   const outputs = (Array.isArray(root.OC) ? (root.OC as Record<string, unknown>[]) : [])
