@@ -119,21 +119,27 @@ function Detail({ ch, freqs, extent }: { ch: ChannelView; freqs: number[]; exten
   );
 }
 
+const rowKey = (ch: ChannelView) => `${ch.index}-${ch.speaker}`;
+
 export default function ChannelTable({
   title,
   configured,
   untuned,
   freqs,
   extent,
+  defaultExpandFirst = false,
 }: {
   title: string;
   configured: ChannelView[];
   untuned: ChannelView[];
   freqs: number[];
   extent: { min: number; max: number };
+  defaultExpandFirst?: boolean;
 }) {
   const [showAll, setShowAll] = useState(false);
-  const [open, setOpen] = useState<Set<string>>(new Set());
+  const [open, setOpen] = useState<Set<string>>(() =>
+    defaultExpandFirst && configured.length > 0 ? new Set([rowKey(configured[0])]) : new Set(),
+  );
   const rows = showAll ? [...configured, ...untuned] : configured;
 
   const toggle = (key: string) =>
