@@ -1,7 +1,12 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth";
 import { Waveform } from "./icons";
 
-export default function Header() {
+export default async function Header() {
+  const token = (await cookies()).get(SESSION_COOKIE)?.value;
+  const signedIn = await verifySessionToken(token);
+
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-card/85 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
@@ -17,6 +22,16 @@ export default function Header() {
           <NavLink href="/tunes">Library</NavLink>
           <NavLink href="/upload">Upload</NavLink>
           <NavLink href="/admin">Admin</NavLink>
+          {signedIn && (
+            <form action="/api/logout" method="post">
+              <button
+                type="submit"
+                className="rounded-md px-2.5 py-1.5 text-muted-foreground transition hover:bg-muted hover:text-foreground"
+              >
+                Sign out
+              </button>
+            </form>
+          )}
         </nav>
       </div>
     </header>
